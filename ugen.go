@@ -71,7 +71,9 @@ func (f *File) WriteImports(imports []string) {
 	for _, i := range builtins {
 		fmt.Fprintf(f, "\t%q\n", i)
 	}
-	f.WriteString("\n")
+	if len(builtins) > 0 && len(customs) > 0 {
+		f.WriteString("\n")
+	}
 	for _, i := range customs {
 		fmt.Fprintf(f, "\t%q\n", i)
 	}
