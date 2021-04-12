@@ -4,16 +4,31 @@ package ugen
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
+	"text/template"
 )
 
 // File represents the generated file.
 type File struct {
 	*os.File
+}
+
+// FromCallerPath returns a path that is upper than the CallerPath
+// by skipUp. For example:
+// If the caller path is:
+// 			/Users/example/project
+// Then calling FromCallerPath(1) will return:
+// 			/Users/example
+func FromCallerPath(skipUp int) string {
+	_, fpath, _, _ := runtime.Caller(1)
+	for i := 0; i < skipUp+1; i++ {
+		fpath = filepath.Dir(fpath)
+	}
+	return fpath
 }
 
 // NewFile creates a new generated file with generator header and
@@ -22,7 +37,7 @@ func NewFile(fpath, generator, pkg string) (*File, error) {
 	os.Remove(fpath)
 	f, err := os.Create(fpath)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to open file %s: %v", f.Name(), err)
+		return nil, fmt.Errorf("Unable to open file %s: %v", fpath, err)
 	}
 
 	fmt.Fprintf(f, `// auto-generated
