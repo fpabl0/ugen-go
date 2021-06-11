@@ -25,10 +25,8 @@ func Test_FromCallerPath(t *testing.T) {
 func Test_File(t *testing.T) {
 	fpath := FromCallerPath(0)
 	fpath = filepath.Join(fpath, "testdata", "testfile.txt")
-	f, err := NewFile(fpath, "testergen", "tester")
-	require.NoError(t, err)
+	f := NewFile(fpath, "testergen", "tester")
 	require.NotNil(t, f)
-	defer f.Close()
 
 	f.WriteImports([]string{
 		"github.com/fpabl0/lib1",
@@ -43,7 +41,10 @@ func hello() string { return "{{ . }}" }
 `),
 	)
 
-	err = f.WriteTemplate(tmpl, "User")
+	err := f.WriteTemplate(tmpl, "User")
+	require.NoError(t, err)
+
+	err = f.Commit()
 	require.NoError(t, err)
 
 	b, err := os.ReadFile(fpath)
